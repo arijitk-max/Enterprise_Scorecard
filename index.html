@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create Scorecard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0e1117;
+            color: #fafafa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #262730;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #fafafa;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d1d5db;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: #1e1e24;
+            border: 1px solid #3d3d47;
+            border-radius: 6px;
+            color: #fafafa;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        
+        .date-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .number-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .number-input-group input {
+            flex: 1;
+        }
+        
+        .number-input-group button {
+            width: 36px;
+            height: 36px;
+            background: #3d3d47;
+            border: 1px solid #3d3d47;
+            border-radius: 6px;
+            color: #fafafa;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .number-input-group button:hover {
+            background: #4d4d57;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button[type="submit"],
+        button.action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        button[type="submit"] {
+            background: #6366f1;
+            color: white;
+            flex: 1;
+        }
+        
+        button[type="submit"]:hover:not(:disabled) {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+        
+        button[type="submit"]:disabled {
+            background: #3d3d47;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .btn-secondary {
+            background: #3d3d47;
+            color: #fafafa;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #4d4d57;
+        }
+        
+        .status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #1e1e24;
+            border-left: 4px solid #6366f1;
+            display: none;
+        }
+        
+        .status-box.show {
+            display: block;
+        }
+        
+        .status-box.error {
+            border-left-color: #ef4444;
+            background: #2a1f1f;
+        }
+        
+        .status-box.success {
+            border-left-color: #10b981;
+            background: #1f2a1f;
+        }
+        
+        .status-message {
+            color: #fafafa;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fafafa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        select {
+            cursor: pointer;
+        }
+        
+        .measure-config-item {
+            background: #1e1e24;
+            border: 1px solid #3d3d47;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .measure-config-item .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .measure-config-item .remove-btn:hover {
+            background: #dc2626;
+        }
+        
+        .measure-config-item .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .measure-config-item .form-group:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Scorecard</h1>
+        
+        <form id="automationForm">
+            <div class="form-group">
+                <label for="customer_name">Customer Name *</label>
+                <input type="text" id="customer_name" name="customer_name" required 
+                       placeholder="e.g., lego apac">
+            </div>
+            
+            <div class="form-group">
+                <label for="scorecard_name">Scorecard Name *</label>
+                <input type="text" id="scorecard_name" name="scorecard_name" required 
+                       placeholder="e.g., Competitor">
+            </div>
+            
+            <div class="form-group">
+                <label for="scorecard_type">Scorecard Type *</label>
+                <select id="scorecard_type_select" name="scorecard_type_select" required>
+                    <option value="Starter Kit">Starter Kit</option>
+                    <option value="Enterprise">Enterprise</option>
+                    <option value="Competitor" selected>Competitor</option>
+                    <option value="Cross Market">Cross Market</option>
+                    <option value="Cars2">Cars2</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Brand">Brand</option>
+                    <option value="Manufacturer">Manufacturer</option>
+                    <option value="__custom__">Custom (type manually)</option>
+                </select>
+                <input
+                    type="text"
+                    id="scorecard_type_custom"
+                    name="scorecard_type_custom"
+                    placeholder="Type exact scorecard type as shown on the website"
+                    style="display:none; margin-top: 10px;"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="excel_file_path">Excel Configuration File Path (Optional)</label>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                    <input type="text" id="excel_file_path" name="excel_file_path" 
+                           placeholder="e.g., Lego Brazil/Lego Setup Configuration Brazil.xlsx"
+                           style="font-size: 12px; flex: 1;">
+                    <button type="button" id="reload_configs_btn_top" class="btn-secondary" 
+                            style="font-size: 12px; padding: 8px 12px; white-space: nowrap; background: #6366f1; color: white; border: none; cursor: pointer; display: block;"
+                            title="Load measure configs from the file path above">
+                        🔄 Load Configs
+                    </button>
+                </div>
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Leave blank to use default file based on scorecard type. Use relative path from project root.
+                    <strong style="color: #fafafa;">For Enterprise scorecards: Enter file path and click "🔄 Load Configs" to populate measure configs.</strong>
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="export_file_path">Export File Path (Optional - for Phase 2)</label>
+                <input type="text" id="export_file_path" name="export_file_path" 
+                       placeholder="e.g., ~/Downloads/LEGO Brazil_ExportWeightsTargetTemplateJob_2025-12-26.xlsx"
+                       style="font-size: 12px;">
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Path to the downloaded export file. If left blank, automation will try to find it automatically in Downloads folder.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="setup_sheet_path">Setup Sheet Path (Optional - for Phase 2)</label>
+                <input type="text" id="setup_sheet_path" name="setup_sheet_path" 
+                       placeholder="e.g., Lego Brazil/Lego Setup Sheet Brazil.xlsx"
+                       style="font-size: 12px;">
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Path to the Setup Sheet with Target, Metric Name, and Metric Weight columns. If left blank, automation will use default based on scorecard type.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="retailer_weights_targets_path">Retailer Weights/Targets Sheet Path (Optional - for Phase 2)</label>
+                <input type="text" id="retailer_weights_targets_path" name="retailer_weights_targets_path" 
+                       placeholder="e.g., Lego Brazil/Retailer Weights Targets.xlsx"
+                       style="font-size: 12px;">
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Path to the Retailer Weights/Targets sheet with Retailer, Retailer Target, Retailer Weight, and Metric Name columns.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="organization_id">Organization ID (Optional)</label>
+                <input type="text" id="organization_id" name="organization_id" 
+                       placeholder="e.g., 12345 or Lego Europe"
+                       style="font-size: 12px;">
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Enter the Organization ID to update for the client. This will be updated between Phase 1 and Phase 2 (before processing weights & targets). Leave blank to skip this step.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="search_term_weights_path">Search Term Weights File Path (Optional - for Phase 4)</label>
+                <input type="text" id="search_term_weights_path" name="search_term_weights_path" 
+                       placeholder="e.g., Lego Spain/Search Terms - Branded.csv"
+                       style="font-size: 12px;">
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Path to the Search Term Weights file with Search Term, Category, and Weight columns.
+                </small>
+            </div>
+            
+            <div class="form-group" id="start_date_group">
+                <label>Start Date *</label>
+                <div class="date-group">
+                    <div>
+                        <label for="start_year" style="font-size: 12px; margin-bottom: 5px;">Year</label>
+                        <input type="number" id="start_year" name="start_year" required 
+                               min="2000" max="2100" value="2025">
+                    </div>
+                    <div>
+                        <label for="start_month" style="font-size: 12px; margin-bottom: 5px;">Month</label>
+                        <div class="number-input-group">
+                            <button type="button" onclick="decrement('start_month')">-</button>
+                            <input type="number" id="start_month" name="start_month" required 
+                                   min="1" max="12" value="1">
+                            <button type="button" onclick="increment('start_month', 12)">+</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="start_day" style="font-size: 12px; margin-bottom: 5px;">Day</label>
+                        <div class="number-input-group">
+                            <button type="button" onclick="decrement('start_day')">-</button>
+                            <input type="number" id="start_day" name="start_day" required 
+                                   min="1" max="31" value="1">
+                            <button type="button" onclick="increment('start_day', 31)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Competitor Scorecard: Fixed threshold fields -->
+            <div class="form-group" id="competitor_thresholds">
+                <label for="rating_threshold_x">Rating Threshold (X) (Optional)</label>
+                <div class="number-input-group">
+                    <button type="button" onclick="decrement('rating_threshold_x', 0.01)">-</button>
+                    <input type="number" id="rating_threshold_x" name="rating_threshold_x" 
+                           step="0.01" min="0" value="4.20">
+                    <button type="button" onclick="increment('rating_threshold_x', 10, 0.01)">+</button>
+                </div>
+            </div>
+            
+            <div class="form-group" id="competitor_thresholds_y">
+                <label for="ratings_threshold_y">Number of Ratings Threshold (Y) (Optional)</label>
+                <div class="number-input-group">
+                    <button type="button" onclick="decrement('ratings_threshold_y')">-</button>
+                    <input type="number" id="ratings_threshold_y" name="ratings_threshold_y" 
+                           min="0" value="50">
+                    <button type="button" onclick="increment('ratings_threshold_y', 1000)">+</button>
+                </div>
+            </div>
+            
+            <!-- Enterprise Scorecard: Dynamic measure config thresholds -->
+            <div class="form-group" id="enterprise_thresholds" style="display: none;">
+                <label>Measure Config Thresholds</label>
+                <div id="measure_configs_container"></div>
+                <button type="button" class="btn-secondary" id="add_measure_config_btn" style="margin-top: 10px;">
+                    + Add Measure Config
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="category_brand_mapping_type">Category Brand Mapping (Optional - for Phase 5)</label>
+                <select id="category_brand_mapping_type" name="category_brand_mapping_type" style="font-size: 12px;">
+                    <option value="None">None</option>
+                    <option value="Enterprise">Enterprise</option>
+                    <option value="Competitive">Competitive</option>
+                    <option value="Both">Both</option>
+                </select>
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Select whether to import Category Brand Mapping for Enterprise, Competitive, or Both.
+                </small>
+            </div>
+            
+            <div class="form-group" id="enterprise_category_brand_group" style="display: none;">
+                <label for="enterprise_category_brand_path">Enterprise Category Brand File Path</label>
+                <input type="text" id="enterprise_category_brand_path" name="enterprise_category_brand_path" 
+                       placeholder="e.g., Category Brand mapping/Enterprise.xlsx"
+                       style="font-size: 12px;">
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Path to the Enterprise Category Brand mapping file with Category and Brand columns.
+                </small>
+            </div>
+            
+            <div class="form-group" id="competition_category_brand_group" style="display: none;">
+                <label for="competition_category_brand_path">Competition Category Brand File Path</label>
+                <input type="text" id="competition_category_brand_path" name="competition_category_brand_path" 
+                       placeholder="e.g., Category Brand mapping/Competition.xlsx"
+                       style="font-size: 12px;">
+                <small style="color: #9ca3af; font-size: 12px; display: block; margin-top: 5px;">
+                    Path to the Competition Category Brand mapping file with Category and Brand columns.
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="freshdesk_ticket_url">Freshdesk Ticket URL *</label>
+                <textarea id="freshdesk_ticket_url" name="freshdesk_ticket_url" required 
+                          placeholder="Enter Freshdesk ticket URL or change reason"></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    Create Scorecard
+                </button>
+                <button type="button" class="btn-secondary" id="statusBtn">
+                    Check Status
+                </button>
+                <button type="button" class="btn-secondary" id="continueBtn" style="display: none;">
+                    Continue Automation
+                </button>
+            </div>
+        </form>
+        
+        <div class="status-box" id="statusBox">
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+        
+        <div class="status-box" id="stepTrackingBox" style="display: none; margin-top: 20px;">
+            <h3 style="margin-bottom: 15px; color: #fafafa;">Step Tracking</h3>
+            <div id="stepTrackingContent"></div>
+        </div>
+        
+        <div class="status-box" id="monitoringBox" style="display: none; margin-top: 20px;">
+            <h3 style="margin-bottom: 15px; color: #fafafa;">Monitoring & Errors</h3>
+            <div id="monitoringContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('automationForm');
+        const statusBox = document.getElementById('statusBox');
+        const statusMessage = document.getElementById('statusMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusBtn = document.getElementById('statusBtn');
+        const continueBtn = document.getElementById('continueBtn');
+        const scorecardTypeSelect = document.getElementById('scorecard_type_select');
+        const scorecardTypeCustom = document.getElementById('scorecard_type_custom');
+        const startDateGroup = document.getElementById('start_date_group');
+        const competitorThresholds = document.getElementById('competitor_thresholds');
+        const competitorThresholdsY = document.getElementById('competitor_thresholds_y');
+        const enterpriseThresholds = document.getElementById('enterprise_thresholds');
+        const measureConfigsContainer = document.getElementById('measure_configs_container');
+        const addMeasureConfigBtn = document.getElementById('add_measure_config_btn');
+        const categoryBrandMappingType = document.getElementById('category_brand_mapping_type');
+        const enterpriseCategoryBrandGroup = document.getElementById('enterprise_category_brand_group');
+        const competitionCategoryBrandGroup = document.getElementById('competition_category_brand_group');
+        let statusCheckInterval = null;
+        
+        // Handle Category Brand Mapping dropdown change
+        if (categoryBrandMappingType) {
+            categoryBrandMappingType.addEventListener('change', function() {
+                const value = this.value;
+                if (value === 'Enterprise' || value === 'Both') {
+                    enterpriseCategoryBrandGroup.style.display = 'block';
+                } else {
+                    enterpriseCategoryBrandGroup.style.display = 'none';
+                }
+                
+                if (value === 'Competitive' || value === 'Both') {
+                    competitionCategoryBrandGroup.style.display = 'block';
+                } else {
+                    competitionCategoryBrandGroup.style.display = 'none';
+                }
+            });
+        }
+        let measureConfigsList = [];
+        let measureConfigCounter = 0;
+
+        // Load measure configs when Enterprise is selected
+        async function loadMeasureConfigs() {
+            console.log('=== loadMeasureConfigs() called ===');
+            try {
+                // Get Excel file path from form
+                const excelFilePathInput = document.getElementById('excel_file_path');
+                if (!excelFilePathInput) {
+                    console.error('✗ excel_file_path input not found!');
+                    return;
+                }
+                
+                const excelFilePath = excelFilePathInput.value.trim();
+                if (!excelFilePath) {
+                    console.log('⚠ No file path provided, skipping loadMeasureConfigs');
+                    measureConfigsList = [];
+                    return;
+                }
+                
+                console.log('📁 Excel file path:', excelFilePath);
+                
+                // Build URL with query parameter
+                const url = `/get_measure_configs?excel_file_path=${encodeURIComponent(excelFilePath)}`;
+                console.log('🌐 Fetching from URL:', url);
+                
+                const response = await fetch(url);
+                console.log('📡 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📦 Response data:', data);
+                
+                if (data.success) {
+                    measureConfigsList = data.configs || [];
+                    console.log('✓ Loaded', measureConfigsList.length, 'measure configs:', measureConfigsList);
+                    
+                    // Update existing measure config dropdowns if they exist
+                    const existingDropdowns = document.querySelectorAll('select[data-measure-config]');
+                    existingDropdowns.forEach(dropdown => {
+                        const currentValue = dropdown.value;
+                        dropdown.innerHTML = '<option value="">Select Measure Config...</option>';
+                        measureConfigsList.forEach(config => {
+                            const option = document.createElement('option');
+                            option.value = config;
+                            option.textContent = config;
+                            if (config === currentValue) {
+                                option.selected = true;
+                            }
+                            dropdown.appendChild(option);
+                        });
+                    });
+                } else {
+                    console.error('✗ Failed to load measure configs:', data.message);
+                    measureConfigsList = [];
+                }
+            } catch (error) {
+                console.error('✗ Error loading measure configs:', error);
+                measureConfigsList = [];
+            }
+            console.log('=== loadMeasureConfigs() finished ===');
+        }
+
+        // Toggle UI based on scorecard type
+        function toggleScorecardTypeUI() {
+            const selectedType = scorecardTypeSelect.value === '__custom__'
+                ? scorecardTypeCustom.value
+                : scorecardTypeSelect.value;
+            
+            const isEnterprise = selectedType === 'Enterprise';
+            
+            // Show/hide threshold sections
+            competitorThresholds.style.display = isEnterprise ? 'none' : 'block';
+            competitorThresholdsY.style.display = isEnterprise ? 'none' : 'block';
+            enterpriseThresholds.style.display = isEnterprise ? 'block' : 'none';
+            
+            // Make threshold fields required/optional
+            // Rating thresholds are now optional for all scorecard types
+            const ratingXInput = document.getElementById('rating_threshold_x');
+            const ratingYInput = document.getElementById('ratings_threshold_y');
+            if (ratingXInput) {
+                ratingXInput.required = false;  // Always optional
+            }
+            if (ratingYInput) {
+                ratingYInput.required = false;  // Always optional
+            }
+            
+            // Load measure configs if Enterprise
+            if (isEnterprise) {
+                console.log('Enterprise selected, calling loadMeasureConfigs()...');
+                loadMeasureConfigs();
+            } else {
+                console.log('Not Enterprise, clearing measure configs');
+                measureConfigsList = [];
+            }
+        }
+
+        scorecardTypeSelect.addEventListener('change', () => {
+            if (scorecardTypeSelect.value === '__custom__') {
+                scorecardTypeCustom.style.display = 'block';
+                scorecardTypeCustom.required = true;
+            } else {
+                scorecardTypeCustom.style.display = 'none';
+                scorecardTypeCustom.required = false;
+                scorecardTypeCustom.value = '';
+            }
+            toggleScorecardTypeUI();
+        });
+        
+        scorecardTypeCustom.addEventListener('input', () => {
+            toggleScorecardTypeUI();
+        });
+        
+        // Initialize UI on page load
+        toggleScorecardTypeUI();
+        
+        // Add event listeners for excel_file_path input to trigger loadMeasureConfigs
+        const excelFilePathInput = document.getElementById('excel_file_path');
+        if (excelFilePathInput) {
+            let debounceTimer;
+            
+            // Listen to 'input' event with debouncing (while typing)
+            excelFilePathInput.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    const selectedType = scorecardTypeSelect.value === '__custom__'
+                        ? scorecardTypeCustom.value
+                        : scorecardTypeSelect.value;
+                    if (selectedType === 'Enterprise') {
+                        console.log('Excel file path changed, reloading configs...');
+                        loadMeasureConfigs();
+                    }
+                }, 1000);
+            });
+            
+            // Also listen to 'change' event for when user leaves the field
+            excelFilePathInput.addEventListener('change', () => {
+                const selectedType = scorecardTypeSelect.value === '__custom__'
+                    ? scorecardTypeCustom.value
+                    : scorecardTypeSelect.value;
+                if (selectedType === 'Enterprise') {
+                    console.log('Excel file path changed (change event), reloading configs...');
+                    loadMeasureConfigs();
+                }
+            });
+            
+            // Also listen to 'blur' event (when field loses focus)
+            excelFilePathInput.addEventListener('blur', () => {
+                const selectedType = scorecardTypeSelect.value === '__custom__'
+                    ? scorecardTypeCustom.value
+                    : scorecardTypeSelect.value;
+                if (selectedType === 'Enterprise') {
+                    console.log('Excel file path blurred, reloading configs...');
+                    loadMeasureConfigs();
+                }
+            });
+        }
+        
+        // Load measure configs on page load if Enterprise is already selected
+        window.addEventListener('load', () => {
+            try {
+                const selectedType = scorecardTypeSelect.value === '__custom__'
+                    ? scorecardTypeCustom.value
+                    : scorecardTypeSelect.value;
+                if (selectedType === 'Enterprise') {
+                    console.log('Page loaded with Enterprise selected, loading configs...');
+                    setTimeout(() => {
+                        loadMeasureConfigs();
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Error in page load handler:', error);
+            }
+        });
+        
+        // Handle reload configs button click
+        async function handleReloadConfigs() {
+            console.log('=== Manual reload triggered ===');
+            console.log('Current measureConfigsList before reload:', measureConfigsList);
+            measureConfigsList = [];
+            await loadMeasureConfigs();
+            console.log('Current measureConfigsList after reload:', measureConfigsList);
+            console.log('Number of configs loaded:', measureConfigsList.length);
+            if (measureConfigsList.length > 0) {
+                alert(`✓ Successfully loaded ${measureConfigsList.length} measure configs!\n\nConfigs: ${measureConfigsList.slice(0, 5).join(', ')}${measureConfigsList.length > 5 ? '...' : ''}\n\nNow click "+ Add Measure Config" to see them in the dropdown.`);
+            } else {
+                alert('⚠ No measure configs found. Please check:\n1. File path is correct\n2. File contains "Display Name" column\n3. Rows have "True" in "Scorecard Measure Selection/Add Measure" column');
+            }
+        }
+        
+        // Add event listener for reload configs button (next to file path input - always visible)
+        const reloadConfigsBtnTop = document.getElementById('reload_configs_btn_top');
+        if (reloadConfigsBtnTop) {
+            reloadConfigsBtnTop.addEventListener('click', handleReloadConfigs);
+            console.log('Reload configs button (top) found and event listener added');
+            
+            // Show button when Enterprise is selected, hide otherwise
+            function updateReloadButtonVisibility() {
+                if (!scorecardTypeSelect) {
+                    // If scorecard type select doesn't exist, show button anyway
+                    reloadConfigsBtnTop.style.display = 'block';
+                    return;
+                }
+                const selectedType = scorecardTypeSelect.value === '__custom__'
+                    ? (scorecardTypeCustom ? scorecardTypeCustom.value : '')
+                    : scorecardTypeSelect.value;
+                const isEnterprise = selectedType === 'Enterprise';
+                reloadConfigsBtnTop.style.display = isEnterprise ? 'block' : 'none';
+                console.log('Reload button visibility updated. Enterprise selected:', isEnterprise, 'Display:', reloadConfigsBtnTop.style.display);
+            }
+            // Update visibility on scorecard type change
+            if (scorecardTypeSelect) {
+                scorecardTypeSelect.addEventListener('change', updateReloadButtonVisibility);
+            }
+            // Set initial visibility immediately
+            setTimeout(updateReloadButtonVisibility, 100);
+            updateReloadButtonVisibility();
+        } else {
+            console.error('reload_configs_btn_top button not found in DOM!');
+        }
+        
+        function increment(id, max = 100, step = 1) {
+            const input = document.getElementById(id);
+            if (!input) return;
+            const current = parseFloat(input.value) || 0;
+            const newValue = Math.min(current + step, max);
+            input.value = newValue.toFixed(step < 1 ? 2 : 0);
+        }
+        
+        function decrement(id, min = 0, step = 1) {
+            const input = document.getElementById(id);
+            if (!input) return;
+            const current = parseFloat(input.value) || 0;
+            const newValue = Math.max(current - step, min);
+            input.value = newValue.toFixed(step < 1 ? 2 : 0);
+        }
+        
+        // Add measure config item
+        async function addMeasureConfig() {
+            // Ensure measure configs are loaded before creating dropdown
+            await loadMeasureConfigs();
+            
+            measureConfigCounter++;
+            const configId = `measure_config_${measureConfigCounter}`;
+            
+            const configItem = document.createElement('div');
+            configItem.className = 'measure-config-item';
+            configItem.id = configId;
+            
+            configItem.innerHTML = `
+                <button type="button" class="remove-btn" onclick="removeMeasureConfig('${configId}')">×</button>
+                <div class="form-group">
+                    <label>Measure Config</label>
+                    <select class="measure-config-select" data-config-id="${configId}">
+                        <option value="">Select Measure Config</option>
+                        ${measureConfigsList.map(config => `<option value="${config}">${config}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rating Threshold (X)</label>
+                    <div class="number-input-group">
+                        <button type="button" onclick="decrement('${configId}_threshold_x', 0, 0.01)">-</button>
+                        <input type="number" id="${configId}_threshold_x" 
+                               step="0.01" min="0" placeholder="Optional">
+                        <button type="button" onclick="increment('${configId}_threshold_x', 10, 0.01)">+</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Number of Rating Threshold (Y)</label>
+                    <div class="number-input-group">
+                        <button type="button" onclick="decrement('${configId}_threshold_y')">-</button>
+                        <input type="number" id="${configId}_threshold_y" 
+                               min="0" placeholder="Optional">
+                        <button type="button" onclick="increment('${configId}_threshold_y', 1000)">+</button>
+                    </div>
+                </div>
+            `;
+            
+            measureConfigsContainer.appendChild(configItem);
+        }
+        
+        // Remove measure config item
+        function removeMeasureConfig(configId) {
+            const configItem = document.getElementById(configId);
+            if (configItem) {
+                configItem.remove();
+            }
+        }
+        
+        // Add event listener for add button
+        addMeasureConfigBtn.addEventListener('click', addMeasureConfig);
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const selectedType = scorecardTypeSelect.value === '__custom__'
+                ? scorecardTypeCustom.value
+                : scorecardTypeSelect.value;
+            
+            const isEnterprise = selectedType === 'Enterprise';
+            
+            const formData = {
+                customer_name: document.getElementById('customer_name').value,
+                scorecard_name: document.getElementById('scorecard_name').value,
+                scorecard_type: selectedType,
+                use_existing_scorecard: false,
+                freshdesk_ticket_url: document.getElementById('freshdesk_ticket_url').value
+            };
+            
+            // Add Excel file path if provided
+            const excelFilePath = document.getElementById('excel_file_path').value.trim();
+            if (excelFilePath) {
+                formData.excel_file_path = excelFilePath;
+            }
+            
+            // Add export file path if provided (for Phase 2)
+            const exportFilePath = document.getElementById('export_file_path').value.trim();
+            if (exportFilePath) {
+                formData.export_file_path = exportFilePath;
+            }
+            
+            // Add setup sheet path if provided (for Phase 2)
+            const setupSheetPath = document.getElementById('setup_sheet_path').value.trim();
+            if (setupSheetPath) {
+                formData.setup_sheet_path = setupSheetPath;
+            }
+            
+            // Add retailer weights/targets path if provided (for Phase 2)
+            const retailerWeightsTargetsPath = document.getElementById('retailer_weights_targets_path').value.trim();
+            if (retailerWeightsTargetsPath) {
+                formData.retailer_weights_targets_path = retailerWeightsTargetsPath;
+            }
+            
+            // Add Organization ID (used for Phase 1.5 - between Phase 1 and Phase 2)
+            const organizationId = document.getElementById('organization_id').value.trim();
+            if (organizationId) {
+                formData.organization_id_phase1_5 = organizationId;
+            }
+            
+            // Add Search Term Weights file path if provided (for Phase 4)
+            const searchTermWeightsPath = document.getElementById('search_term_weights_path').value.trim();
+            if (searchTermWeightsPath) {
+                formData.search_term_weights_path = searchTermWeightsPath;
+            }
+            
+            // Add Category Brand Mapping data if provided (for Phase 5)
+            const categoryBrandMappingTypeValue = document.getElementById('category_brand_mapping_type').value;
+            if (categoryBrandMappingTypeValue && categoryBrandMappingTypeValue !== 'None') {
+                formData.category_brand_mapping_type = categoryBrandMappingTypeValue;
+                
+                if (categoryBrandMappingTypeValue === 'Enterprise' || categoryBrandMappingTypeValue === 'Both') {
+                    const enterprisePath = document.getElementById('enterprise_category_brand_path').value.trim();
+                    if (enterprisePath) {
+                        formData.enterprise_category_brand_path = enterprisePath;
+                    }
+                }
+                
+                if (categoryBrandMappingTypeValue === 'Competitive' || categoryBrandMappingTypeValue === 'Both') {
+                    const competitionPath = document.getElementById('competition_category_brand_path').value.trim();
+                    if (competitionPath) {
+                        formData.competition_category_brand_path = competitionPath;
+                    }
+                }
+            }
+            
+            // Add threshold fields based on scorecard type
+            if (isEnterprise) {
+                // Collect measure configs with thresholds
+                const measureConfigs = [];
+                const configItems = measureConfigsContainer.querySelectorAll('.measure-config-item');
+                
+                configItems.forEach(item => {
+                    const configId = item.id;
+                    const select = item.querySelector('.measure-config-select');
+                    const thresholdXInput = document.getElementById(`${configId}_threshold_x`);
+                    const thresholdYInput = document.getElementById(`${configId}_threshold_y`);
+                    
+                    const configName = select ? select.value.trim() : '';
+                    const thresholdX = thresholdXInput ? thresholdXInput.value.trim() : '';
+                    const thresholdY = thresholdYInput ? thresholdYInput.value.trim() : '';
+                    
+                    // Only add if config name is provided (thresholds are optional)
+                    if (configName) {
+                        measureConfigs.push({
+                            config_name: configName,
+                            threshold_x: thresholdX || '',
+                            threshold_y: thresholdY || ''
+                        });
+                    }
+                });
+                
+                formData.measure_configs = measureConfigs;
+            } else {
+                // Competitor: use fixed threshold fields (optional - use defaults if empty)
+                const ratingXValue = document.getElementById('rating_threshold_x').value;
+                const ratingYValue = document.getElementById('ratings_threshold_y').value;
+                if (ratingXValue) {
+                    formData.rating_threshold_x = parseFloat(ratingXValue);
+                }
+                if (ratingYValue) {
+                    formData.ratings_threshold_y = parseInt(ratingYValue);
+                }
+            }
+            
+            // Include date fields (always required for new scorecard creation)
+            formData.start_year = parseInt(document.getElementById('start_year').value);
+            formData.start_month = parseInt(document.getElementById('start_month').value);
+            formData.start_day = parseInt(document.getElementById('start_day').value);
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Starting...';
+            
+            try {
+                const response = await fetch('/start_automation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('Automation started! Browser will open shortly. Please login manually when the page loads.', 'success');
+                    startStatusCheck();
+                } else {
+                    showStatus('Error: ' + data.message, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Create Scorecard';
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Create Scorecard';
+            }
+        });
+        
+        statusBtn.addEventListener('click', async () => {
+            await checkStatus();
+        });
+        
+        continueBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/continue_automation', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                showStatus(data.message, 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        });
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                if (data.running) {
+                    showStatus(data.message, 'success');
+                    updateStepTracking(data.step_tracking);
+                    updateMonitoring(data.step_tracking);
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="loading"></span> Running...';
+                    if (data.message && data.message.includes('login')) {
+                        continueBtn.style.display = 'block';
+                    } else {
+                        continueBtn.style.display = 'none';
+                    }
+                } else {
+                    showStatus(data.message || 'Automation not running', data.message ? 'success' : '');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Create Scorecard';
+                    continueBtn.style.display = 'none';
+                    stopStatusCheck();
+                }
+            } catch (error) {
+                showStatus('Error checking status: ' + error.message, 'error');
+            }
+        }
+        
+        function startStatusCheck() {
+            if (statusCheckInterval) return;
+            statusCheckInterval = setInterval(checkStatus, 2000);
+        }
+        
+        function stopStatusCheck() {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
+        
+        function showStatus(message, type = '') {
+            statusBox.className = 'status-box show ' + type;
+            statusMessage.textContent = message;
+        }
+        
+        function updateStepTracking(tracking) {
+            const stepTrackingBox = document.getElementById('stepTrackingBox');
+            const stepTrackingContent = document.getElementById('stepTrackingContent');
+            
+            if (!tracking || !tracking.phases || Object.keys(tracking.phases).length === 0) {
+                stepTrackingBox.style.display = 'none';
+                return;
+            }
+            
+            stepTrackingBox.style.display = 'block';
+            
+            let html = '';
+            
+            // Summary
+            if (tracking.start_time) {
+                const startTime = new Date(tracking.start_time).toLocaleString();
+                html += `<div style="margin-bottom: 15px; padding: 10px; background: #1e1e24; border-radius: 6px;">
+                    <strong>Started:</strong> ${startTime}<br>`;
+                if (tracking.customer_name) {
+                    html += `<strong>Customer:</strong> ${tracking.customer_name}<br>`;
+                }
+                if (tracking.scorecard_name) {
+                    html += `<strong>Scorecard:</strong> ${tracking.scorecard_name}`;
+                }
+                html += `</div>`;
+            }
+            
+            // Phases
+            for (const [phaseName, phaseData] of Object.entries(tracking.phases)) {
+                const statusIcon = {
+                    'success': '✅',
+                    'failed': '❌',
+                    'in_progress': '🔄',
+                    'skipped': '⏭️'
+                }[phaseData.status] || '•';
+                
+                html += `<div style="margin-bottom: 15px; padding: 12px; background: #1e1e24; border-radius: 6px; border-left: 3px solid ${phaseData.status === 'success' ? '#10b981' : phaseData.status === 'failed' ? '#ef4444' : '#6366f1'};">
+                    <div style="font-weight: 600; margin-bottom: 8px;">
+                        ${statusIcon} ${phaseName} - ${phaseData.status.toUpperCase()}
+                    </div>`;
+                
+                if (phaseData.steps && phaseData.steps.length > 0) {
+                    html += `<div style="margin-left: 20px; font-size: 13px;">`;
+                    phaseData.steps.forEach(step => {
+                        const stepIcon = {
+                            'success': '✓',
+                            'failed': '✗',
+                            'in_progress': '⟳',
+                            'skipped': '⊘'
+                        }[step.status] || '•';
+                        const stepColor = step.status === 'success' ? '#10b981' : step.status === 'failed' ? '#ef4444' : '#6366f1';
+                        html += `<div style="margin: 4px 0; color: ${stepColor};">
+                            ${stepIcon} ${step.step_name}${step.message ? ': ' + step.message : ''}
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            stepTrackingContent.innerHTML = html;
+        }
+        
+        async function updateMonitoring(tracking) {
+            const monitoringBox = document.getElementById('monitoringBox');
+            const monitoringContent = document.getElementById('monitoringContent');
+            
+            if (!tracking || !tracking.monitoring) {
+                monitoringBox.style.display = 'none';
+                return;
+            }
+            
+            const monitoring = tracking.monitoring;
+            
+            // Show monitoring box if there are errors or warnings
+            if (monitoring.total_errors > 0 || monitoring.total_warnings > 0 || monitoring.total_operations > 0) {
+                monitoringBox.style.display = 'block';
+                
+                let html = '';
+                
+                // Summary metrics
+                html += `<div style="margin-bottom: 15px; padding: 10px; background: #1e1e24; border-radius: 6px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: ${monitoring.total_operations > 0 ? '#6366f1' : '#9ca3af'};">${monitoring.total_operations}</div>
+                        <div style="font-size: 12px; color: #9ca3af;">Operations</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: ${monitoring.total_errors > 0 ? '#ef4444' : '#10b981'};">${monitoring.total_errors}</div>
+                        <div style="font-size: 12px; color: #9ca3af;">Errors</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: ${monitoring.total_warnings > 0 ? '#f59e0b' : '#10b981'};">${monitoring.total_warnings}</div>
+                        <div style="font-size: 12px; color: #9ca3af;">Warnings</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: ${monitoring.screenshots_captured > 0 ? '#8b5cf6' : '#9ca3af'};">${monitoring.screenshots_captured}</div>
+                        <div style="font-size: 12px; color: #9ca3af;">Screenshots</div>
+                    </div>
+                </div>`;
+                
+                // Recent errors
+                if (monitoring.recent_errors && monitoring.recent_errors.length > 0) {
+                    html += `<div style="margin-bottom: 15px;">
+                        <h4 style="color: #ef4444; margin-bottom: 10px;">Recent Errors:</h4>`;
+                    monitoring.recent_errors.forEach((error, idx) => {
+                        html += `<div style="padding: 10px; background: #1e1e24; border-radius: 6px; border-left: 3px solid #ef4444; margin-bottom: 8px;">
+                            <div style="font-weight: 600; color: #ef4444; margin-bottom: 5px;">
+                                ${error.phase} - ${error.step}
+                            </div>
+                            <div style="font-size: 13px; color: #fca5a5; margin-bottom: 5px;">
+                                ${error.error || error.message || 'Unknown error'}
+                            </div>
+                            ${error.error_type ? `<div style="font-size: 12px; color: #9ca3af;">Type: ${error.error_type}</div>` : ''}
+                            ${error.url ? `<div style="font-size: 11px; color: #6b7280; margin-top: 3px;">URL: ${error.url}</div>` : ''}
+                            ${error.screenshot_path ? `<div style="font-size: 11px; color: #8b5cf6; margin-top: 3px;">📸 Screenshot captured</div>` : ''}
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                
+                // Recent warnings
+                if (monitoring.recent_warnings && monitoring.recent_warnings.length > 0) {
+                    html += `<div style="margin-bottom: 15px;">
+                        <h4 style="color: #f59e0b; margin-bottom: 10px;">Recent Warnings:</h4>`;
+                    monitoring.recent_warnings.forEach((warning, idx) => {
+                        html += `<div style="padding: 8px; background: #1e1e24; border-radius: 6px; border-left: 3px solid #f59e0b; margin-bottom: 5px; font-size: 13px;">
+                            <strong>${warning.phase} - ${warning.step}:</strong> ${warning.message || 'Warning'}
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                
+                monitoringContent.innerHTML = html;
+            } else {
+                monitoringBox.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
